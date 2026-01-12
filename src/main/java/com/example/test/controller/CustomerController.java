@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 @Controller
 public class CustomerController {
-
+//주석
     private final CustomerService customerService;
 
     @GetMapping("/customers")
