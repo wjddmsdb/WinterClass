@@ -1,7 +1,10 @@
 name: Deploy Test on AWS EC2
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
+    pull_request:
+      branches:
+        - master
 
 permissions:
   contents: read
