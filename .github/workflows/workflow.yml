@@ -63,4 +63,4 @@ jobs:
               -e USERNAME=${{ secrets.RDS_USERNAME }} \
               -e PASSWORD=${{ secrets.RDS_PASSWORD }} \
               --name test \
-              ${{ secrets.DOCKER_USERNAME}}/test:latest
+              ${{ secrets.DOCKER_USERNAME }}/test:latest
