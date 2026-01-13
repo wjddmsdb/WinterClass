@@ -1,10 +1,10 @@
 name: Deploy Test on AWS EC2
 on:
   push:
-    branches: ["master"]
-    pull_request:
-      branches:
-        - master
+    branches: ["main"]
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -14,32 +14,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 내 코드 가져오기
       - name: Checkout code
         uses: actions/checkout@v4
 
+      #JDK 설치
       - name: JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: 'temurin'
 
+      #Gradle 권한 부여
       - name: Grant Gradle
         run: chmod +x ./gradlew
 
+      #Gradle 빌드
       - name: Build
         run: ./gradlew bootJar -x test
 
+      # Docker hub 로그인
       - name: Docker Hub login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # 이미지 빌드 & Push
       - name: Build and Push Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/test:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/test:latest
 
+      # EC2 에 ssh 로 접속
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -52,8 +59,8 @@ jobs:
             docker rmi ${{ secrets.DOCKER_USERNAME }}/test:latest || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/test:latest
             docker run -d -p 80:8080 \
-              -e URL=jdc:mysql://${{ secrets.RDS_URL }}/user19 \
-              -e USERNAME=${{ secrets.RDS_PASSWORD }} \
+              -e URL=jdbc:mysql://${{ secrets.RDS_URL }}/user19 \
+              -e USERNAME=${{ secrets.RDS_USERNAME }} \
+              -e PASSWORD=${{ secrets.RDS_PASSWORD }} \
               --name test \
-              ${{ secrets.DOCKER_USERNAME }}/test:latest
-
+              ${{ secrets.DOCKER_USERNAME}}/test:latest
